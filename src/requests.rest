@@ -1,0 +1,25 @@
+GET http://localhost:3001/api/persons
+###
+
+GET http://localhost:3001/api/persons/1
+
+###
+
+GET http://localhost:3001/api/persons/abc
+
+###
+
+GET http://localhost:3001/api/persons/99999999
+
+###
+DELETE http://localhost:3001/api/persons/1
+
+###
+
+POST http://localhost:3001/api/persons
+content-type: application/json
+
+{
+    "name": "test post",
+    "number": "1234-5678"
+}
