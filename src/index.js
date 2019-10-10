@@ -16,6 +16,10 @@ app.get("/info", (req, res) => {
   `);
 });
 
+app.use((req, res) => {
+  res.status(404).json({ error: "endpoint unknown" });
+});
+
 const PORT = 3001;
 
 app.listen(PORT, () => {
