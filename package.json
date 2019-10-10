@@ -4,17 +4,22 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build:ui": "rm -rf build && cd ../fullstackopen2019/part2/phonebook && npm run build --prod && cp -r build ../../../fullstackopen2019-BE/",
+    "deploy": "git push heroku master",
+    "deploy:full": "npm run build:ui && git add -A && git commit -m uibuild && npm run deploy",
+    "logs:prod": "heroku logs --tail",
     "start": "node ./src/index.js",
     "watch": "nodemon ./src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "John Balke",
   "license": "ISC",
   "devDependencies": {
     "nodemon": "^1.19.3"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "morgan": "^1.9.1"
   }
