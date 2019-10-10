@@ -54,7 +54,7 @@ function apiRouter(data) {
     }
 
     //data = [...data, { name, number, nextId }];
-    data.push({ name, number, nextId });
+    data.push({ name, number, id: nextId });
     res.status(201).json(data[data.length - 1]);
   });
 

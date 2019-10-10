@@ -1,3 +1,32 @@
+GET https://phonebook-fso.herokuapp.com/api/persons
+###
+
+GET https://phonebook-fso.herokuapp.com/api/persons/1
+
+###
+
+GET https://phonebook-fso.herokuapp.com/api/persons/abc
+
+###
+
+GET https://phonebook-fso.herokuapp.com/api/persons/99999999
+
+###
+
+POST https://phonebook-fso.herokuapp.com/api/persons
+content-type: application/json
+
+{
+    "name": "test post",
+    "number": "1234-5678"
+}
+###
+
+DELETE https://phonebook-fso.herokuapp.com/api/persons/12376
+
+###
+
+
 GET http://localhost:3001/api/persons
 ###
 
