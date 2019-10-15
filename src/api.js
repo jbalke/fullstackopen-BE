@@ -1,4 +1,16 @@
 const express = require("express");
+const mongoose = require("mongoose");
+require("dotenv").config();
+
+const connStr = `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_DB}?retryWrites=true&w=majority`;
+mongoose.connect(connStr, { useNewUrlParser: true, useUnifiedTopology: true });
+
+const personSchema = new mongoose.Schema({
+  name: String,
+  number: String
+});
+
+const Person = mongoose.model("Person", personSchema);
 
 function validateId(req, res, next) {
   const id = Number(req.params.id);

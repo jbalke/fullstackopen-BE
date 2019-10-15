@@ -22,7 +22,7 @@ content-type: application/json
 }
 ###
 
-DELETE https://phonebook-fso.herokuapp.com/api/persons/12376
+DELETE https://phonebook-fso.herokuapp.com/api/persons/511841
 
 ###
 
