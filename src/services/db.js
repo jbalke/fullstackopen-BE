@@ -1,0 +1,34 @@
+const mongoose = require("mongoose");
+const Person = require("../models/person");
+
+const url = `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_DB}?retryWrites=true&w=majority`;
+
+console.log("connecting to", url);
+
+(async () => {
+  try {
+    await mongoose.connect(url, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
+    console.log("mongodb connected");
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
+})();
+// const conn = mongoose
+//   .createConnection(url, {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true
+//   })
+//   .then(result => {
+//     console.log("connected to MongoDB");
+//     person(dbService);
+//   })
+//   .catch(error => {
+//     console.log("error connecting to MongoDB:", error.message);
+//     process.exit(1);
+//   });
+
+module.exports = { Person };

@@ -1,8 +1,10 @@
 const express = require("express");
 const cors = require("cors");
+require("dotenv").config();
 const apiRouter = require("./api");
 const morgan = require("morgan");
-const data = require("./data.json");
+// const data = require("./data.json");
+const services = require("./services/db");
 
 const app = express();
 app.use(express.json());
@@ -30,7 +32,7 @@ app.use(
   })
 );
 
-app.use("/api", apiRouter(data));
+app.use("/api", apiRouter(services));
 
 app.get("/info", (req, res) => {
   res.status(200).send(`
