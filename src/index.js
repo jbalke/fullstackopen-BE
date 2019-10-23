@@ -3,7 +3,6 @@ const cors = require("cors");
 require("dotenv").config();
 const apiRouter = require("./api");
 const morgan = require("morgan");
-// const data = require("./data.json");
 const services = require("./services/db");
 
 const app = express();
@@ -34,10 +33,11 @@ app.use(
 
 app.use("/api", apiRouter(services));
 
-app.get("/info", (req, res) => {
+app.get("/info", async (req, res) => {
+  let count = await services.Person.estimatedDocumentCount();
   res.status(200).send(`
   <div>
-  Phonebook has info for ${data.length} people</br></br>
+  Phonebook has info for ${count} people</br></br>
   ${new Date()}
   </div>
   `);
@@ -46,6 +46,20 @@ app.get("/info", (req, res) => {
 app.use((req, res) => {
   res.status(404).json({ error: "endpoint unknown" });
 });
+
+const errorHandler = (error, req, res, next) => {
+  console.error(error.message);
+
+  if (error.name === "CastError" && error.kind === "ObjectId") {
+    return res.status(400).send({ error: "malformed id" });
+  } else {
+    return res.status(500).end();
+  }
+
+  next(error);
+};
+
+app.use(errorHandler);
 
 const { PORT = 3001 } = process.env;
 

@@ -17,18 +17,5 @@ console.log("connecting to", url);
     process.exit(1);
   }
 })();
-// const conn = mongoose
-//   .createConnection(url, {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true
-//   })
-//   .then(result => {
-//     console.log("connected to MongoDB");
-//     person(dbService);
-//   })
-//   .catch(error => {
-//     console.log("error connecting to MongoDB:", error.message);
-//     process.exit(1);
-//   });
 
 module.exports = { Person };

@@ -1,0 +1,33 @@
+get http://localhost:3001/api/persons HTTP/1.1
+
+###
+
+POST http://localhost:3001/api/persons HTTP/1.1
+content-type: application/json
+
+{
+    "name": "sample2",
+    "number": "123-456-789"
+}
+
+###
+get http://localhost:3001/api/persons/5da073d5ab26dd2374254f92 HTTP/1.1
+
+###
+get http://localhost:3001/api/persons/5da073d5ab26dd2374254f91 HTTP/1.1
+
+###
+delete http://localhost:3001/api/persons/5daf55cbb6c8943284e1ca08 HTTP/1.1
+
+###
+delete http://localhost:3001/api/persons/5da0759c78c3652ea42efd03 HTTP/1.1
+
+###
+put http://localhost:3001/api/persons/5db096680f03ec327c6165e2 HTTP/1.1
+content-type: application/json
+
+{
+    "number": "123-456-111"
+}
+###
+get http://localhost:3001/info HTTP/1.1

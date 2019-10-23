@@ -1,81 +1,100 @@
 const express = require("express");
 
-function validateId(req, res, next) {
-  const id = Number(req.params.id);
-
-  if (!id) return res.status(400).json({ error: "Provided id is not valid." });
-
-  req.personId = id;
-  next();
-}
-
 function apiRouter({ Person }) {
   const router = express.Router();
 
-  // middleware to reject invalid person ids that are NaN
-  //router.use("/persons/:id", validateId);
+  router.param("id", async (req, res, next, id) => {
+    try {
+      let person = await Person.findById(id);
+      if (person) {
+        req.person = person;
+        next();
+      } else {
+        return res.status(404).end();
+      }
+    } catch (error) {
+      next(error);
+    }
+  });
 
-  router.get("/persons", (req, res) => {
-    (async () => {
+  router
+    .route("/persons")
+    .get(async (req, res, next) => {
       try {
         const people = await Person.find({});
         res.json(people.map(person => person.toJSON()));
       } catch (error) {
-        console.log(error);
+        next(error);
       }
-    })();
-  });
+    })
+    .post(async (req, res, next) => {
+      let { name = "", number = "" } = req.body;
 
-  // router.get("/persons/:id", (req, res) => {
-  //   const { personId } = req;
+      name = name.trim();
+      number = number.trim();
 
-  //   const person = data.find(p => p.id === personId);
+      if (!name || !number) {
+        return res.status(400).json({ error: "Name and number are required" });
+      }
 
-  //   if (person) {
-  //     res.json(person);
-  //   } else {
-  //     res.status(404).json({ error: "Person does not exist" });
-  //   }
-  // });
+      let existingPerson = await Person.findOne({
+        name: name.toLowerCase()
+      }).lean();
 
-  // router.post("/persons", (req, res) => {
-  //   const max = 1000000,
-  //     min = 100;
-  //   const nextId = Math.floor(Math.random() * (max - min) + min);
+      if (existingPerson) {
+        console.log(existingPerson);
 
-  //   let { name = "", number = "" } = req.body;
+        return res.status(403).json({
+          error: "Name must be unique.",
+          conflictId: existingPerson._id
+        });
+      }
 
-  //   name = name.trim();
-  //   number = number.trim();
+      const person = new Person({ name, number });
+      try {
+        const savedPerson = await person.save();
+        console.log(
+          `added ${savedPerson.name} number ${savedPerson.number} to phonebook`
+        );
+        return res.status(201).json(savedPerson.toJSON());
+      } catch (error) {
+        next(error);
+      }
+    });
 
-  //   if (!name || !number) {
-  //     return res.status(400).json({ error: "Name and number are required" });
-  //   }
+  router
+    .route("/persons/:id")
+    .get((req, res) => {
+      if (req.person) {
+        return res.json(req.person.toJSON());
+      } else {
+        return res.status(404).end();
+      }
+    })
+    .put(async (req, res, next) => {
+      const { number } = req.body;
+      if (req.person) {
+        try {
+          let updatedPerson = await Person.findByIdAndUpdate(
+            req.person.id,
+            { number },
+            { new: true }
+          );
 
-  //   const existingPerson = data.find(
-  //     p => p.name.toLowerCase() === name.toLowerCase()
-  //   );
-
-  //   if (existingPerson) {
-  //     return res.status(403).json({ error: "Name must be unique." });
-  //   }
-
-  //   //data = [...data, { name, number, nextId }];
-  //   data.push({ name, number, id: nextId });
-  //   res.status(201).json(data[data.length - 1]);
-  // });
-
-  // router.delete("/persons/:id", (req, res) => {
-  //   const { personId } = req;
-  //   const person = data.find(p => p.id === personId);
-
-  //   if (person) {
-  //     data = data.filter(p => p.id !== person.id);
-  //     res.status(200).json({ messge: "Person deleted" });
-  //   } else {
-  //     res.status(404).json({ error: "Person does not exist" });
-  //   }
-  // });
+          return res.status(200).json(updatedPerson.toJSON());
+        } catch (error) {
+          next(err0r);
+        }
+      }
+    })
+    .delete(async (req, res, next) => {
+      try {
+        await Person.findByIdAndDelete(req.person.id);
+        res.status(204).end();
+      } catch (error) {
+        next(error);
+      }
+    });
 
   return router;
 }
