@@ -1,86 +1,100 @@
 const express = require("express");
-const mongoose = require("mongoose");
-require("dotenv").config();
 
-const connStr = `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_DB}?retryWrites=true&w=majority`;
-mongoose.connect(connStr, { useNewUrlParser: true, useUnifiedTopology: true });
-
-const personSchema = new mongoose.Schema({
-  name: String,
-  number: String
-});
-
-const Person = mongoose.model("Person", personSchema);
-
-function validateId(req, res, next) {
-  const id = Number(req.params.id);
-
-  if (!id) return res.status(400).json({ error: "Provided id is not valid." });
-
-  req.personId = id;
-  next();
-}
-
-function apiRouter(data) {
+function apiRouter({ Person }) {
   const router = express.Router();
 
-  // middleware to reject invalid person ids that are NaN
-  router.use("/persons/:id", validateId);
-
-  router.get("/persons", (req, res) => {
-    res.json(data);
-  });
-
-  router.get("/persons/:id", (req, res) => {
-    const { personId } = req;
-
-    const person = data.find(p => p.id === personId);
-
-    if (person) {
-      res.json(person);
-    } else {
-      res.status(404).json({ error: "Person does not exist" });
+  router.param("id", async (req, res, next, id) => {
+    try {
+      let person = await Person.findById(id);
+      if (person) {
+        req.person = person;
+        next();
+      } else {
+        return res.status(404).end();
+      }
+    } catch (error) {
+      next(error);
     }
   });
 
-  router.post("/persons", (req, res) => {
-    const max = 1000000,
-      min = 100;
-    const nextId = Math.floor(Math.random() * (max - min) + min);
+  router
+    .route("/persons")
+    .get(async (req, res, next) => {
+      try {
+        const people = await Person.find({});
+        res.json(people.map(person => person.toJSON()));
+      } catch (error) {
+        next(error);
+      }
+    })
+    .post(async (req, res, next) => {
+      let { name = "", number = "" } = req.body;
 
-    let { name = "", number = "" } = req.body;
+      name = name.trim();
+      number = number.trim();
 
-    name = name.trim();
-    number = number.trim();
+      if (!name || !number) {
+        return res.status(400).json({ error: "Name and number are required" });
+      }
 
-    if (!name || !number) {
-      return res.status(400).json({ error: "Name and number are required" });
-    }
+      let existingPerson = await Person.findOne({
+        name: name.toLowerCase()
+      }).lean();
 
-    const existingPerson = data.find(
-      p => p.name.toLowerCase() === name.toLowerCase()
-    );
+      if (existingPerson) {
+        console.log(existingPerson);
 
-    if (existingPerson) {
-      return res.status(403).json({ error: "Name must be unique." });
-    }
+        return res.status(403).json({
+          error: "Name must be unique.",
+          conflictId: existingPerson._id
+        });
+      }
 
-    //data = [...data, { name, number, nextId }];
-    data.push({ name, number, id: nextId });
-    res.status(201).json(data[data.length - 1]);
-  });
+      const person = new Person({ name, number });
+      try {
+        const savedPerson = await person.save();
+        console.log(
+          `added ${savedPerson.name} number ${savedPerson.number} to phonebook`
+        );
+        return res.status(201).json(savedPerson.toJSON());
+      } catch (error) {
+        next(error);
+      }
+    });
 
-  router.delete("/persons/:id", (req, res) => {
-    const { personId } = req;
-    const person = data.find(p => p.id === personId);
+  router
+    .route("/persons/:id")
+    .get((req, res) => {
+      if (req.person) {
+        return res.json(req.person.toJSON());
+      } else {
+        return res.status(404).end();
+      }
+    })
+    .put(async (req, res, next) => {
+      const { number } = req.body;
+      if (req.person) {
+        try {
+          let updatedPerson = await Person.findByIdAndUpdate(
+            req.person.id,
+            { number },
+            { new: true }
+          );
 
-    if (person) {
-      data = data.filter(p => p.id !== person.id);
-      res.status(200).json({ messge: "Person deleted" });
-    } else {
-      res.status(404).json({ error: "Person does not exist" });
-    }
-  });
+          return res.status(200).json(updatedPerson.toJSON());
+        } catch (error) {
+          next(err0r);
+        }
+      }
+    })
+    .delete(async (req, res, next) => {
+      try {
+        await Person.findByIdAndDelete(req.person.id);
+        res.status(204).end();
+      } catch (error) {
+        next(error);
+      }
+    });
 
   return router;
 }
