@@ -47,8 +47,8 @@ app.use((req, res) => {
   res.status(404).json({ error: "endpoint unknown" });
 });
 
-const errorHandler = (error, req, res) => {
-  console.error(error.message);
+const errorHandler = (error, req, res, next) => {
+  console.error(error.stack);
 
   if (error.name === "CastError" && error.kind === "ObjectId") {
     return res.status(400).json({ message: "malformed id" });
