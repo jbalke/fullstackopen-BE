@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(cors());
 app.use(express.static("build"));
 
-morgan.token("body", (req, res) => JSON.stringify(req.body));
+morgan.token("body", req => JSON.stringify(req.body));
 app.use(
   morgan((tokens, req, res) => {
     let output = [
@@ -47,7 +47,7 @@ app.use((req, res) => {
   res.status(404).json({ error: "endpoint unknown" });
 });
 
-const errorHandler = (error, req, res, next) => {
+const errorHandler = (error, req, res) => {
   console.error(error.message);
 
   if (error.name === "CastError" && error.kind === "ObjectId") {
@@ -57,8 +57,6 @@ const errorHandler = (error, req, res, next) => {
   } else {
     return res.status(500).end();
   }
-
-  next(error);
 };
 
 app.use(errorHandler);

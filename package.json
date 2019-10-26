@@ -10,12 +10,14 @@
     "logs:prod": "heroku logs --tail",
     "start": "node ./src/index.js",
     "watch": "nodemon ./src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ."
   },
   "keywords": [],
   "author": "John Balke",
   "license": "ISC",
   "devDependencies": {
+    "eslint": "^6.6.0",
     "nodemon": "^1.19.3"
   },
   "dependencies": {

@@ -70,7 +70,7 @@ function apiRouter({ Person }) {
 
           return res.status(200).json(updatedPerson.toJSON());
         } catch (error) {
-          next(err0r);
+          next(error);
         }
       }
     })
