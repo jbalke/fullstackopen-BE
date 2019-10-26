@@ -37,19 +37,6 @@ function apiRouter({ Person }) {
         return res.status(400).json({ error: "Name and number are required" });
       }
 
-      let existingPerson = await Person.findOne({
-        name: name.toLowerCase()
-      }).lean();
-
-      if (existingPerson) {
-        console.log(existingPerson);
-
-        return res.status(403).json({
-          error: "Name must be unique.",
-          conflictId: existingPerson._id
-        });
-      }
-
       const person = new Person({ name, number });
       try {
         const savedPerson = await person.save();
