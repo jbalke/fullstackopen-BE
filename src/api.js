@@ -34,7 +34,9 @@ function apiRouter({ Person }) {
       number = number.trim();
 
       if (!name || !number) {
-        return res.status(400).json({ error: "Name and number are required" });
+        return res
+          .status(400)
+          .json({ message: "Name and number are required" });
       }
 
       const person = new Person({ name, number });
