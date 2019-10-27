@@ -1,3 +1,4 @@
+//eslint-disable-next-line
 const errorHandler = (error, req, res, next) => {
   console.error(error.stack);
 
